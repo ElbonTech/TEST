@@ -1,36 +1,69 @@
-// pages/dashboard.js
+import { useEffect, useState } from 'react';
 import { signOut, useSession, getSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
+
+
+import styles from '../styles/Home.module.css'; // Import the CSS file
 
 export async function getServerSideProps(context) {
-    const session = await getSession(context);
-    if (!session) {
-        return {
-            redirect: { destination: '/login', permanent: false },
-        };
-    }
-    return { props: { session } };
+  const session = await getSession(context);
+  if (!session) {
+    return {
+      redirect: { destination: '/login', permanent: false },
+    };
+  }
+  return { props: { session } };
 }
 
 export default function Dashboard({ session }) {
-    const router = useRouter();
+  const router = useRouter();
+  const [allUsers, setAllUsers] = useState([]);
 
-    const handleLogout = async () => {
-        await signOut();
-        router.push('/login'); // Redirect to login page after logout
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/users/last10");
+        const data = await response.json();
+        setAllUsers(data);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
     };
+    fetchUsers();
+  }, []);
 
-    return (
-        <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
-            <h1 className="text-3xl font-bold mb-4">Dashboard</h1>
-            <p className="text-lg mb-4">Welcome, {session.user.email}!</p>
-            <button
-                onClick={handleLogout}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-200"
+  const handleUserSelection = (userId) => {
+    router.push(`/chat/${userId}`); // Navigate to the chat page for the selected user
+  };
+
+  const handleLogout = async () => {
+    await signOut();
+    router.push('/login');
+  };
+
+  return (
+    <div className={styles.container}>
+      <h1 className={styles.title}>Dashboard</h1>
+      <p className={styles.welcomeText}>Welcome, {session.user.email}!</p>
+      <button onClick={handleLogout} className={styles.logoutButton}>
+        Logout
+      </button>
+
+      <div className={styles.userListContainer}>
+        <h2 className={styles.userListTitle}>All Users</h2>
+        <ul className={styles.userList}>
+          {allUsers.map((user) => (
+            <li
+              key={user.id}
+              onClick={() => handleUserSelection(user.id)}
+              className={styles.userItem}
             >
-                Logout
-            </button>
-        </div>
-    );
+              <span>{user.email}</span>
+              <div className={styles.userItemIcon}>🗨️</div> {/* Add a message icon */}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
 }

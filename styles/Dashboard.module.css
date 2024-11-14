@@ -1,0 +1,59 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #f3f4f6;
+  }
+  
+  .header {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+  }
+  
+  .subHeader {
+    font-size: 1.125rem;
+    margin-bottom: 1rem;
+  }
+  
+  .button {
+    padding: 0.5rem 1rem;
+    background-color: #2563eb;
+    color: white;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .button:hover {
+    background-color: #1d4ed8;
+  }
+  
+  .contentContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    max-width: 28rem;
+    margin: 0 auto;
+  }
+  
+  .userList {
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+  
+  .userItem {
+    padding: 0.5rem;
+    cursor: pointer;
+    border-radius: 0.375rem;
+    background-color: #e5e7eb;
+    transition: background-color 0.2s;
+  }
+  
+  .userItem:hover {
+    background-color: #93c5fd;
+  }
+  
