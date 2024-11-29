@@ -1,8 +1,26 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs'; // for password hashing
-//import db from './db'; // import the database connection
 import db from '../../../db'; // import the database connection
+import Cors from 'cors';
+
+// Initialize CORS middleware
+const cors = Cors({
+  origin: '*', // Allow your frontend origin
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allowed HTTP methods
+});
+
+// Helper function to run CORS middleware
+function runMiddleware(req, res, fn) {
+  return new Promise((resolve, reject) => {
+    fn(req, res, (result) => {
+      if (result instanceof Error) {
+        return reject(result);
+      }
+      return resolve(result);
+    });
+  });
+}
 
 // Configure the NextAuth options
 const authOptions = {
@@ -21,7 +39,6 @@ const authOptions = {
           throw new Error('Email and Password are required');
         }
 
-        // Check if user is signing up or logging in
         if (signUp) {
           // Sign up logic
           const [rows] = await db.promise().query('SELECT * FROM users WHERE email = ?', [email]);
@@ -84,9 +101,21 @@ const authOptions = {
       return session;
     },
   },
+  secret: process.env.NEXTAUTH_SECRET, // Add your JWT secret here
 };
 
-// Export the NextAuth handler
-export default function handler(req, res) {
+export default async function handler(req, res) {
+  // Run CORS middleware before handling the request
+  await runMiddleware(req, res, cors);
+
+  if (req.method === 'OPTIONS') {
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173');
+    res.status(204).end(); // No content for OPTIONS request
+    return;
+  }
+
+  // Pass the request to NextAuth
   return NextAuth(req, res, authOptions);
 }

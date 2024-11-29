@@ -1,9 +1,5 @@
-// pages/index.js
-import { useEffect } from 'react';
-import { useRouter } from 'next/router';
 import { parse } from 'cookie'; // Use the 'cookie' package to parse cookies
 import jwt from 'jsonwebtoken';
-
 
 export async function getServerSideProps(context) {
   const { req } = context;
@@ -28,6 +24,7 @@ export async function getServerSideProps(context) {
     // Verify the token
     const secretKey = process.env.JWT_SECRET; // Ensure this is set in your .env file
     const decoded = jwt.verify(token, secretKey);
+    console.log(decoded)
 
     // Pass the decoded token and the raw token to the page as props
     return {
@@ -49,12 +46,13 @@ export async function getServerSideProps(context) {
   }
 }
 
-export default function Home() {
-  const router = useRouter();
-
-  useEffect(() => {
-    router.replace('/dashboard'); // Replace so the back button doesn’t take users back to `/`
-  }, [router]);
-
-  return null; // Optionally, you could return a loader/spinner while redirecting.
+export default function Page({ user, token }) {
+  return (
+    <div>
+      <h1>Welcome, {user.username}!</h1>
+      <p>Your token is: <code>{token}</code></p>
+      <p>You are now authenticated on the Next.js site!</p>
+      <a href='http://localhost:5173/dashboard'>Go back to WebApp</a>
+    </div>
+  );
 }
